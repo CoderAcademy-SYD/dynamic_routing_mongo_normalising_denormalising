@@ -333,7 +333,7 @@ async function show(req, res) {
     <h1>book</h1>
 
     <p>Title: {{book.name}}</p>
-    <p>Author: <a href="/authors/"></a></p>
+    <p>Author: {{{book.author.name}}} <a href="/authors/"></a></p>
 
     <form method="post" action="/books/{{book_.id}}/comment">
     <div>
