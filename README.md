@@ -249,3 +249,103 @@ async function show(req, res) {
 ```
 - Now When we are looking at the show page of the book. The db makes two requests. This is acceptabe. 
 - However if we were to display the author name on the index page then the db will make 1 query for all the books and 1 more for every book author. Which could be 1000s! (Dont do this)
+
+
+# Step - 7
+### Denormalizing
+
+- intro
+    - We have now seen normalizing, which was making extra db queries to fake relations
+    - Denormalizing is a little different. 
+    - Instead of faking relations, we embed one collection inside of another one
+    - The classic example is comments. It just makes sense that if a book has a commnets section that we would save the comments in an array directly onto the book collection itself
+    - NB we do not need a comment model and that is why we split up the Schema and Model files
+    - Instead we will have a comment Schema, and then embed it into the book schema
+
+- Create a new CommentSchema
+    - Notice the array of comments
+    ```
+    const mongoose = require('mongoose') 
+    const Schema = mongoose.Schema 
+
+    const CommentSchema = new Schema({
+    created: {
+    type: Date,
+    required: true,
+    default: Date.now()
+    },
+    body: {
+    type: String,
+    required: true
+    }
+    })
+
+    module.exports = CommentSchema
+    ```
+- Embed it into the Book Schema
+    - Add in the`const CommentSchema = require('./comment_schema')`
+    - Notice the array of comments
+    ```
+    const BookSchema = new Schema({
+    name: {
+    type: String,
+    required: true
+    },
+    author: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'author'
+    },
+    comments: [CommentSchema]
+    })
+
+    module.exports = BookSchema
+    ```
+- Create a comment controller to add comments to a book
+    - Create a new comments_controller.js in the controllers directory 
+    - Notice we dont have a comment model
+    ```
+    const BookModel = require("./../database/models/book_model");
+    async function create(req, res) {
+    let { bookId } = req.params;
+    let { body } = req.body;
+
+    let book = await BookModel.findById(bookId);
+
+    book.comments.push({ body });
+    await book.save();
+
+    res.redirect(`/books/${book._id}`);
+    }
+
+    module.exports = {
+    create
+    };
+    ```
+
+- Create the routes for the commments (They will be on the book routes for time sake)
+    - import the comment controller into the book routes 
+    - `const CommentController = require("../controllers/comment_controller");`
+    - inside the book routes add `router.post('/:bookId/comment', CommentController.create)`
+
+- We are going to create our comment on the books view in books.show
+    - 
+    ```
+    <h1>book</h1>
+
+    <p>Title: {{book.name}}</p>
+    <p>Author: <a href="/authors/"></a></p>
+
+    <form method="post" action="/books/{{book_.id}}/comment">
+    <div>
+        <textarea name="body"></textarea>
+    </div>
+        <input type="submit" value="Create Comment" />
+    </form>
+
+    {{#each book.comments}}
+    <div>
+    <h4>{{this.created}}</h4>
+    <p>{{this.body}}</p>
+    </div>
+    {{/each}}
+    ```

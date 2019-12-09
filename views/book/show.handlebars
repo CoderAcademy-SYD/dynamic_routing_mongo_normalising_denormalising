@@ -1,4 +1,18 @@
-<h1>Book</h1>
-<p>Name: {{book.name}} </p>
+<h1>book</h1>
 
+<p>Title: {{book.name}}</p>
 <p>Author: <a href="/authors/"></a></p>
+
+<form method="post" action="/books/{{books_.id}}/comment">
+    <div>
+        <textarea name="body"></textarea>
+    </div>
+    <input type="submit" value="Create Comment" />
+</form>
+
+{{#each book.comments}}
+<div>
+    <h4>{{this.created}}</h4>
+    <p>{{this.body}}</p>
+</div>
+{{/each}}

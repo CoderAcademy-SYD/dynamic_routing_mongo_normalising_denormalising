@@ -1,6 +1,7 @@
 const express = require('express') // Requires in express
 const router = express.Router() // Use the express router
 const BookController = require('../controllers/book_controller') // Bring in the BookController
+const CommentController = require('../controllers/comment_controller') // Bring in the CommentController
 
 // Remember the pattern
 // router.<verb>('url', <controller>.<function>)
@@ -23,5 +24,7 @@ router.patch('/:id', BookController.update)
 router.put('/:id', BookController.update)
 
 router.delete('/:id', BookController.destroy)
+
+router.post('/:bookId/comment', CommentController.create)
 
 module.exports = router
