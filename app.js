@@ -24,7 +24,7 @@ mongoose.connection.on('error', err => console.log(err)) // Log out the error if
 app.engine('handlebars', exphbs({ defaultLayout: 'main' })) // Telling express that we need to use handlebars
 app.set('view engine', 'handlebars') // Setting the view engine to be handlebars
 
-app.use(methodOverride('_method', { methods: ['POST', 'GET'] }))
+app.use(methodOverride('_method', { methods: ['POST', 'GET'] })) // These are the verbs we allow to overide
 
 // When we recieve data from an http request, it is not in a format that we can automatically use
 // It is in the form of a stream. The below 2 lines of code convert it for us.
