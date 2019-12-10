@@ -26,7 +26,6 @@ async function show (req, res) {
   //   console.log(req.params)
   let { id } = req.params // Destructure the id off the params.
   let book = await BookModel.findById(id).populate('author') // It knows that since there is an author id and its a ref. The program knows to populate the 'author'
-  console.log(book)
   res.render('book/show', { book }) // render the 'book/show' and pass it the {book}
 }
 

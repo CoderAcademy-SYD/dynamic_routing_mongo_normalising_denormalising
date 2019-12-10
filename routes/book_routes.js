@@ -25,6 +25,4 @@ router.put('/:id', BookController.update)
 
 router.delete('/:id', BookController.destroy)
 
-router.post('/:bookId/comment', CommentController.create)
-
 module.exports = router

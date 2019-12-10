@@ -3,7 +3,7 @@
 <p>Title: {{book.name}}</p>
 <p>Author: {{{book.author.name}}}<a href="/authors/"></a></p>
 
-<form method="post" action="/books/{{books_.id}}/comment">
+<form method="post" action="/comments/{{book._id}}">
     <div>
         <textarea name="body"></textarea>
     </div>
@@ -14,5 +14,6 @@
 <div>
     <h4>{{this.created}}</h4>
     <p>{{this.body}}</p>
+    <hr />
 </div>
 {{/each}}

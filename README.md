@@ -258,6 +258,8 @@ async function show(req, res) {
     - We have now seen normalizing, which was making extra db queries to fake relations
     - Denormalizing is a little different. 
     - Instead of faking relations, we embed one collection inside of another one
+    - The embedded document is referred to as the sub document
+    - We want to denormalize where ever possible because it reduces our db calls.
     - The classic example is comments. It just makes sense that if a book has a commnets section that we would save the comments in an array directly onto the book collection itself
     - NB we do not need a comment model and that is why we split up the Schema and Model files
     - Instead we will have a comment Schema, and then embed it into the book schema
@@ -300,6 +302,17 @@ async function show(req, res) {
 
     module.exports = BookSchema
     ```
+- Add in the import to the index routes files `const commentRoutes = require('./comment_routes') // Require in comment_routes as commentRoutes` and the route itself `router.use('/comments', commentRoutes)`
+- Create the comment_routes file within the routes directory
+ - 
+    ```
+    const express = require('express') // Requires in express
+    const router = express.Router() // Use the express router
+    const CommentController = require('../controllers/comment_controller') // Bring in the CommentController
+    router.post('/:id', CommentController.create)
+    module.exports = router
+    ```
+
 - Create a comment controller to add comments to a book
     - Create a new comments_controller.js in the controllers directory 
     - Notice we dont have a comment model
@@ -308,9 +321,7 @@ async function show(req, res) {
     async function create(req, res) {
     let { bookId } = req.params;
     let { body } = req.body;
-
     let book = await BookModel.findById(bookId);
-
     book.comments.push({ body });
     await book.save();
 
@@ -335,7 +346,7 @@ async function show(req, res) {
     <p>Title: {{book.name}}</p>
     <p>Author: {{{book.author.name}}} <a href="/authors/"></a></p>
 
-    <form method="post" action="/books/{{book_.id}}/comment">
+    <form method="post" action="/comments/{{book._id}}">
     <div>
         <textarea name="body"></textarea>
     </div>
