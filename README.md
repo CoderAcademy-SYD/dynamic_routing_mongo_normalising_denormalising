@@ -178,15 +178,17 @@ async function show(req, res) {
     - Normalizing can be throught of referencing other document object ids directly into another document
     - In otherwords we reference it. It is very similar to a foreign key from postgres
     - The **big** difference is that in SQL dbs using a foreign key, it makes 1 query
-    - However in Mongo it has to make 2. So we want to use it sparingly.
-    - We have to make the DB design decision based on our requirements and how we want to query our data. 
-    - For the use of our current app we are only ever going to whow the author of the book when we click on the book. Ie only in the book show.
+    - However in Mongo it has to make 2. One for the actual document and one for what we are referencing. So we want to use it sparingly.
+    - We have to make the Mongo **DB design** decision based on our requirements and how we want to query our data. 
+    - For the use of our current app we are only ever going to show the author of the book when we click on the book. ie only in the book show.
+    - We will only show titles on the index. We will only show the author of the book on the book show page.
+
 - Save the author of a book on the book schema.
     - NB the mongoose.Schema.Types.ObjectId is a special 'data type'
     - It looks at the next ref key to know which collection to reference
     ```
     const BookSchema = new Schema({
-    name: {
+    title: {
     type: String,
     required: true
     },
@@ -197,23 +199,29 @@ async function show(req, res) {
     })
     ```
 - Now we need to address the book controllers to save an author
+- Create: Sves the book into our DB. Destructure off the author as well and save it in the create method 
     ```
     async function create(req, res) {
-    let { title, published, author } = req.body;
-    let book = await BookModel.create({ title, published, author }).catch(err =>
+    let { title, author } = req.body;
+    let book = await BookModel.create({ title, author }).catch(err =>
     res.status(500).send(err)
     );
     res.redirect(`/books/${book._id}`);
     }
     ```
-
+- Make 
+- Retrieve all the db. select("_id name") and pass it through to the make view
     ```
     async function make(req, res) {
     let authors = await AuthorModel.find().select("_id name");
     res.render("book/new", { authors });
     }
     ```
-
+- Show 
+- Add the .populate("author") onto the end of db query
+- NB console.log the book both with the .populate("author") and without it.
+- This should drive the point home that it is in fact two queries
+- This could become 1000s of db calls
     ```
     async function show(req, res) {
     let { id } = req.params;
@@ -221,11 +229,11 @@ async function show(req, res) {
     res.render("book/show", { book });
     }
     ```
-- Add in an input box on the book/new.handlebars
+    - Add in an input box on the book/new.handlebars
 ```
-    <h1>New Book</h1>
+<h1>New Book</h1>
 
-    <form method="post" action="/books">
+<form method="post" action="/books">
     <div>
         <label>Name</label>
     </div>
@@ -236,16 +244,18 @@ async function show(req, res) {
         <label>Author</label>
     </div>
     <div>
+        {{!-- This is a drop down selection for authors --}}
+        {{!-- We need to loop over the object sent forward and provide the id to the value and the name to the option --}}
         <select name="author">
-
-            <option value=""></option>
-
+            {{#each authors}}
+            <option value="{{{this._id}}}">{{{this.name}}}</option>
+            {{/each}}
         </select>
     </div>
     <div>
         <input type="submit" value="Submit Form" />
     </div>
-    </form>
+</form>
 ```
 - Now When we are looking at the show page of the book. The db makes two requests. This is acceptabe. 
 - However if we were to display the author name on the index page then the db will make 1 query for all the books and 1 more for every book author. Which could be 1000s! (Dont do this)
