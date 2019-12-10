@@ -218,10 +218,10 @@ async function show(req, res) {
     }
     ```
 - Show 
-- Add the .populate("author") onto the end of db query
-- NB console.log the book both with the .populate("author") and without it.
-- This should drive the point home that it is in fact two queries
-- This could become 1000s of db calls
+    - Add the .populate("author") onto the end of db query
+    - NB console.log the book both with the .populate("author") and without it.
+    - This should drive the point home that it is in fact two queries
+    - This could become 1000s of db calls
     ```
     async function show(req, res) {
     let { id } = req.params;
@@ -259,3 +259,10 @@ async function show(req, res) {
 ```
 - Now When we are looking at the show page of the book. The db makes two requests. This is acceptabe. 
 - However if we were to display the author name on the index page then the db will make 1 query for all the books and 1 more for every book author. Which could be 1000s! (Dont do this)
+- This is an example of the book show
+```
+<h1>Book</h1>
+<p>Name: {{book.name}} </p>
+
+<p>Author: {{{book.author.name}}} <a href="/authors/"></a></p>
+```
